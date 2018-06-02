@@ -57,7 +57,7 @@ def create_tables(cur):
                 EMAIL VARCHAR(30)\
     );")
 
-def load(dir_name):
+def load():
     ''' loads the program '''
 
     connection = pc.connect(database = "FakeUData")
