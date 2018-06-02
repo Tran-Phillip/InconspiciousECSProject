@@ -75,8 +75,8 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
     CID = course_tuple[0]
 
     cur.execute("INSERT INTO course_tbl( CID,TERM,SUBJ,CRSE,SEC,UNITS)"\
-                 "VALUES (\'" + CID + '\',\'' + course_tuple[1] + '\',\'' + course_tuple[2] + '\',\'' +  course_tuple[3] + \
-                 '\',\'' + course_tuple[4] + '\',\''  + course_tuple[5] +"\');")
+                 "VALUES (" + CID + ',' + course_tuple[1] + ',\'' + course_tuple[2] + '\',' +  course_tuple[3] + \
+                 ',' + course_tuple[4] + ','  + course_tuple[5] +");")
 
     cur.execute("INSERT INTO meetings_tbl( CID,INSTRUCTORS,TYPE,DAYS,TIMEE,BUILDING,ROOM)"\
                  "VALUES (\'"+ CID + '\',\'' + meeting_tuple[0] + '\',\'' + meeting_tuple[1] + '\',\'' + meeting_tuple[2] + \
