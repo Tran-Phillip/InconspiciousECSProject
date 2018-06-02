@@ -2,6 +2,7 @@ import os
 import sys
 import psycopg2 as pc
 import re
+import csv
 
 #######################################################################
 #   Stuff we still need to do:
@@ -44,14 +45,14 @@ def create_tables(cur):
 
     cur.execute("CREATE TABLE seating_tbl (\
                 CID Integer,\
-                SEAT Integer,\
-                SID Integer,\
+                SEAT VARCHAR(20),\
+                SID VARCHAR(20),\
                 SURNAME VARCHAR(30),\
                 PREFNAME VARCHAR(30),\
-                LEVEL CHAR(2),\
-                UNITS Integer,\
+                LEVEL CHAR(4),\
+                UNITS VARCHAR(20),\
                 CLASS VARCHAR(10),\
-                MAJOR VARCHAR(4),\
+                MAJOR VARCHAR(10),\
                 GRADE VARCHAR(10),\
                 STATUS VARCHAR(50),\
                 EMAIL VARCHAR(30)\
@@ -84,6 +85,8 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
                   '\',\'' +  meeting_tuple[3] + '\',\'' + meeting_tuple[4] + '\',\''  + meeting_tuple[5] +"\');")
 
     for tuple in seating_tuple:
+        if(len(tuple) == 0):
+            break
         cur.execute("INSERT INTO seating_tbl( CID, SEAT,SID, SURNAME, PREFNAME, LEVEL, UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
                      "VALUES ("+ CID + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' + tuple[2] + \
                       '\',\'' +  tuple[3] + '\',\'' + tuple[4] + '\',\''  + tuple[5] +\
@@ -130,7 +133,10 @@ def parse_file(csv_file, cur):
     stream = open(os.getcwd() + '/' + csv_file, 'r')  #FIXME: allow user to specify path
     iter(stream).next() # -> first line in file is always an empty tuple so we can just discard it
 
+
     for course_info in stream:
+        if(csv_file == "1990_Q2.csv"):
+            print(course_info)
         course_tuple = parse_course(stream,6)
         meeting_tuple = parse_meetings(stream,6)
         seating_tuple = parse_seating(stream,11)
@@ -141,11 +147,11 @@ def parse_file(csv_file, cur):
 
         count+=1 #remove me later
 
-    cur.execute("SELECT * from meetings_tbl")
-    all = cur.fetchall()
-    for x in all:
-        print(x)
-
+    #cur.execute("SELECT * from meetings_tbl")
+    #all = cur.fetchall()
+    #for x in all:
+    #    print(x)
+    stream.close()
 
 
 def parse_meetings(stream, num_attributes):
@@ -183,16 +189,19 @@ def parse_seating(stream, num_attributes):
     ''' returns a list of list containing each students information '''
     attr_names = iter(stream).next()
     tuple = [[]]
-    line = iter(stream).next()
+    line = "hello world!"
 
     while(len(line) > 3 ):
-        line = line.strip()
-        tuple2 = re.split(r'[,\"]+', line)
-        tuple2 = clean_up(tuple2)
-        tuple.append(tuple2)
         line = iter(stream).next()
+        line = line.strip()
+        if('\'' in line):
+            line = line.replace('\'',"_")
 
-    tuple.pop(0) # -> some reason first tuple is empty...?
+        tuple2 = line.split(',')
+
+        tuple.append(tuple2)
+
+    tuple.pop(len(tuple) - 1) # -> some reason first tuple is empty...?
 
     return tuple
 
