@@ -142,8 +142,12 @@ def parse_file(csv_file, cur):
 
 def parse_meetings(csvreader):
     ''' returns information about the meetings'''
-    header = next(csvreader)
-    meeting_tuple = next(csvreader)
+    meeting_tuple = []
+    try:
+        header = next(csvreader)
+        meeting_tuple = next(csvreader)
+    except:
+        return meeting_tuple
     if(len(meeting_tuple) != 1):
         test = next(csvreader) #skip the new line
     return meeting_tuple
@@ -151,12 +155,19 @@ def parse_meetings(csvreader):
 def parse_seating(csvreader):
     '''returns a list of list with the seating info'''
 
-    header = next(csvreader)
-    tuple = next(csvreader)
     seating_tuple = []
+    try:
+        header = next(csvreader)
+        tuple = next(csvreader)
+    except:
+        return seating_tuple
+
     while(tuple[0] != ""):
         seating_tuple.append(tuple)
-        tuple = next(csvreader)
+        try:
+            tuple = next(csvreader)
+        except:
+            return
 
 
 
