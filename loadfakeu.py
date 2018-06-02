@@ -39,7 +39,7 @@ def create_tables(cur):
                 DAYS VARCHAR(20),\
                 TIMEE VARCHAR(50),\
                 BUILDING VARCHAR(20),\
-                ROOM Integer\
+                ROOM VARCHAR(10)\
     );")
 
     cur.execute("CREATE TABLE seating_tbl (\
@@ -73,6 +73,7 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
     ''' inserts a set of tuples into their representive tables'''
 
     CID = course_tuple[0]
+
 
     cur.execute("INSERT INTO course_tbl( CID,TERM,SUBJ,CRSE,SEC,UNITS)"\
                  "VALUES (" + CID + ',' + course_tuple[1] + ',\'' + course_tuple[2] + '\',' +  course_tuple[3] + \
@@ -130,13 +131,9 @@ def parse_file(csv_file, cur):
     iter(stream).next() # -> first line in file is always an empty tuple so we can just discard it
 
     for course_info in stream:
-
-
         course_tuple = parse_course(stream,6)
         meeting_tuple = parse_meetings(stream,6)
         seating_tuple = parse_seating(stream,11)
-
-
 
         insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur);
         #print(course_tuple)
@@ -165,20 +162,15 @@ def parse_meetings(stream, num_attributes):
         return tuple
     else:
         line = line.strip()
-        tuple = re.split(r'[,\"]+', line)
-
+        #tuple = re.split(r'[,\"]+', line)
+        tuple = line.split(',')
 
         if(tuple[0] != '\"\"'):
-            tuple = make_equal(tuple, num_attributes)
-            tuple = clean_up(tuple)
-            if(tuple[0] == "\'\'"):
-                tuple.pop(0)
-            else:
-                tuple[0] = (tuple[0] + "," + tuple[1]) #reconstruct the name
-                tuple.pop(1) #remove the extra attrbiute
-            tuple = replace_empty_with_null(tuple)
+            tuple[0] = (tuple[0] + "," + tuple[1]) #reconstruct the name
+            tuple.pop(1) #remove the extra attrbiute
 
 
+        tuple = replace_empty_with_null(tuple)
 
         tuple = tuple[0:num_attributes]
 
@@ -208,7 +200,7 @@ def replace_empty_with_null(tuple):
     ''' finds and replaces all empty attributes with null'''
     refined_tuple = []
     for index in range(0, len(tuple)): #for some reason the regex split adds a '' to the begining and end of the tuple
-                                           # we will account for it here
+                               # we will account for it here
         if(tuple[index] == "\"\"" or tuple[index] == ''):
             refined_tuple.append("NULL")
         else:
