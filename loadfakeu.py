@@ -8,13 +8,11 @@ import psycopg2 as pc
 #   #FIXME: actually figure out how large everything is lol.
 #   #FIXME: maybe change time into the actual time datatype
 #   #TODO: inserting the seating tuple as well
-#   #FIXME: allow user to specify path
 #   #FIXME: Fix parsing so that it actually scans the integers and as integers instead of everything as strings
 #   #TODO:  Test this shit on larger datasets to see how fast it runs
 #   #FIXME: insert multiple tuples at a time rather than one at a time
 #   #TODO: restructure code to remove repetition
 ########################################################################
-
 
 
 def create_tables(cur):
@@ -58,13 +56,15 @@ def create_tables(cur):
 
 def load(dir_name):
     ''' loads the program '''
-    connection = pc.connect(database = "FakeUData", user = "ptran", password = "amaterasu1")
+
+    connection = pc.connect(database = "FakeUData")
     cur = connection.cursor()
     create_tables(cur)
 
-    for root, dirs, files in os.walk(dir_name):
-        for csv_file in files:
-            parse_file(csv_file, cur)
+
+    for files in os.listdir("."):
+        if(files.endswith(".csv")):
+            parse_file(files, cur)
 
 def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: insert multiple tuples at a time rather than one at a time
     ''' inserts a set of tuples into their representive tables'''
@@ -115,7 +115,7 @@ def parse_file(csv_file, cur):
 
     for course_info in stream:
         if(count == 3):# -> use this to control how many iterations you want to run. good for debugging.
-        
+
             ##this is just to test if everything is put into the database correctly
             cur.execute("SELECT * from course_tbl")
             all = cur.fetchall()
@@ -187,4 +187,7 @@ def replace_empty_with_null(tuple):
     return refined_tuple
 
 ### Main()
-load("Grades")
+if (len(sys.argv)==2):
+    load(sys.argv[1])
+else:
+    load(os.getcwd())
