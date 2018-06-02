@@ -1,52 +1,55 @@
 import os
 import sys
 import psycopg2 as pc
-
+import re
 
 #######################################################################
 #   Stuff we still need to do:
-#   #FIXME: actually figure out how large everything is lol.
 #   #FIXME: maybe change time into the actual time datatype
-#   #TODO: inserting the seating tuple as well
 #   #FIXME: Fix parsing so that it actually scans the integers and as integers instead of everything as strings
 #   #TODO:  Test this shit on larger datasets to see how fast it runs
 #   #FIXME: insert multiple tuples at a time rather than one at a time
 #   #TODO: restructure code to remove repetition
 ########################################################################
 
+def clean_up(tuple):
+    '''removes extra '' at the begining and the end'''
+    tuple.pop(0)
+    tuple.pop(len(tuple) - 1)
+    return tuple
 
 def create_tables(cur):
     ''' initializes the tables. I think every table should have the CID since the CID seems to connect our entities together. We can change l8er though'''
 
     #FIXME: actually figure out how large everything is lol.
     cur.execute("CREATE TABLE course_tbl (\
-                CID CHAR(20),\
-                TERM CHAR(20),\
-                SUBJ CHAR(20),\
-                CRSE VARCHAR(20),\
-                SEC VARCHAR(20),\
+                CID Integer,\
+                TERM Integer,\
+                SUBJ CHAR(3),\
+                CRSE Integer,\
+                SEC Integer,\
                 UNITS VARCHAR(20)\
     );")
 
     #FIXME: maybe change time into the actual time datatype
     cur.execute("CREATE TABLE meetings_tbl (\
-                CID CHAR(20),\
+                CID Integer,\
                 INSTRUCTORS VARCHAR(50),\
                 TYPE VARCHAR(20),\
                 DAYS VARCHAR(20),\
                 TIMEE VARCHAR(50),\
                 BUILDING VARCHAR(20),\
-                ROOM VARCHAR(20)\
+                ROOM Integer\
     );")
 
     cur.execute("CREATE TABLE seating_tbl (\
-                CID VARCHAR(20),\
-                SEAT VARCHAR(20),\
-                SID VARCHAR(20),\
+                CID Integer,\
+                SEAT Integer,\
+                SID Integer,\
                 SURNAME VARCHAR(30),\
                 PREFNAME VARCHAR(30),\
-                LEVEL VARCHAR(20),\
-                UNITS VARCHAR(20),\
+                LEVEL CHAR(2),\
+                UNITS Integer,\
                 CLASS VARCHAR(2),\
                 MAJOR VARCHAR(4),\
                 GRADE VARCHAR(2),\
@@ -70,21 +73,22 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
     ''' inserts a set of tuples into their representive tables'''
 
     CID = course_tuple[0]
-    TERM = course_tuple[1]
-    SUBJ = course_tuple[2]
-    CSRE = course_tuple[3]
-    SEC = course_tuple[4]
-    UNITS = course_tuple[5]
 
     cur.execute("INSERT INTO course_tbl( CID,TERM,SUBJ,CRSE,SEC,UNITS)"\
-                 "VALUES (\'" + CID + '\',\'' + TERM + '\',\'' + SUBJ + '\',\'' +  CSRE + '\',\'' + SEC + '\',\''  + UNITS +"\');")
+                 "VALUES (\'" + CID + '\',\'' + course_tuple[1] + '\',\'' + course_tuple[2] + '\',\'' +  course_tuple[3] + \
+                 '\',\'' + course_tuple[4] + '\',\''  + course_tuple[5] +"\');")
 
     cur.execute("INSERT INTO meetings_tbl( CID,INSTRUCTORS,TYPE,DAYS,TIMEE,BUILDING,ROOM)"\
                  "VALUES (\'"+ CID + '\',\'' + meeting_tuple[0] + '\',\'' + meeting_tuple[1] + '\',\'' + meeting_tuple[2] + \
                   '\',\'' +  meeting_tuple[3] + '\',\'' + meeting_tuple[4] + '\',\''  + meeting_tuple[5] +"\');")
 
-    #TODO: inserting the seating tuple as well
-
+    for tuple in seating_tuple:
+        cur.execute("INSERT INTO seating_tbl( CID, SEAT,SID, SURNAME, PREFNAME, LEVEL, UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
+                     "VALUES (\'"+ CID + '\',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' + tuple[2] + \
+                      '\',\'' +  tuple[3] + '\',\'' + tuple[4] + '\',\''  + tuple[5] +\
+                      '\',\'' +  tuple[6] + '\',\'' + tuple[7] + '\',\''  + tuple[8] +\
+                      '\',\'' +  tuple[9] + '\',\'' + tuple[10]  +\
+                      "\');")
 
 def parse_course(stream, num_attributes):
     ''' returns all information on the courses'''
@@ -97,9 +101,10 @@ def parse_course(stream, num_attributes):
         return tuple
     else:
         line = line.strip()
-        tuple = line.split(',')
-        tuple = tuple[0:num_attributes ] # -> there are more columns than attributes for some reason
+        tuple = re.split(r'[,\"]+', line)
+        tuple = clean_up(tuple)
         tuple = replace_empty_with_null(tuple)
+        tuple = tuple[0:num_attributes] # -> there are more columns than attributes for some reason
         iter(stream).next() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
                           # -> so we will just ignore it and move onto the next category
 
@@ -114,29 +119,26 @@ def parse_file(csv_file, cur):
     iter(stream).next() # -> first line in file is always an empty tuple so we can just discard it
 
     for course_info in stream:
-        if(count == 3):# -> use this to control how many iterations you want to run. good for debugging.
-
+        if(count == 1):# -> use this to control how many iterations you want to run. good for debugging.
             ##this is just to test if everything is put into the database correctly
-            cur.execute("SELECT * from course_tbl")
+            cur.execute("SELECT * from seating_tbl")
             all = cur.fetchall()
-
             for x in all:
                 print(x)
 
-            sys.exit(1)
-            ###
 
-        #FIXME: Fix parsing so that it actually scans the integers and as integers instead of everything as strings
+
+            sys.exit(1)
+            ####################################################################
+
         course_tuple = parse_course(stream,6)
         meeting_tuple = parse_meetings(stream,6)
         seating_tuple = parse_seating(stream,11)
+        insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur);
+        #print(course_tuple)
+        #print(meeting_tuple)
+        #print(seating_tuple)
 
-#	print(course_tuple)
-#	print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-#	print(meeting_tuple)
-#	print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-#	print(seating_tuple)
-#        insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur);
 
         count+=1 #remove me later
 
@@ -155,14 +157,16 @@ def parse_meetings(stream, num_attributes):
         return tuple
     else:
         line = line.strip()
-        tuple = line.split(',')
+        tuple = re.split(r'[,\"]+', line)
 
         if(tuple[0] != '\"\"'):
+            tuple = clean_up(tuple)
+            tuple = replace_empty_with_null(tuple)
             tuple[0] = (tuple[0] + "," + tuple[1]) #reconstruct the name
             tuple.pop(1) #remove the extra attrbiute
-            tuple = tuple[0:num_attributes]
 
-        tuple = replace_empty_with_null(tuple)
+        tuple = tuple[0:num_attributes]
+
         iter(stream).next() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
                           # -> so we will just ignore it and move onto the next category
 
@@ -171,26 +175,31 @@ def parse_meetings(stream, num_attributes):
 def parse_seating(stream, num_attributes):
     ''' returns a list of list containing each students information '''
     attr_names = iter(stream).next()
-    tuple = []
+    tuple = [[]]
     line = iter(stream).next()
 
     while(len(line) > 3 ):
         line = line.strip()
-        line = line.split(',')
-        tuple.append(line)
+        tuple2 = re.split(r'[,\"]+', line)
+        tuple2 = clean_up(tuple2)
+        tuple.append(tuple2)
         line = iter(stream).next()
+
+    tuple.pop(0) # -> some reason first tuple is empty...?
 
     return tuple
 
 def replace_empty_with_null(tuple):
     ''' finds and replaces all empty attributes with null'''
     refined_tuple = []
-    for index in range(0, len(tuple)):
+    for index in range(0, len(tuple)): #for some reason the regex split adds a '' to the begining and end of the tuple
+                                           # we will account for it here
         if(tuple[index] == "\"\"" or tuple[index] == ''):
             refined_tuple.append("NULL")
         else:
             refined_tuple.append(tuple[index])
     return refined_tuple
+
 
 ### Main()
 if (len(sys.argv)==2):
