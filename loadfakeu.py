@@ -218,6 +218,5 @@ def replace_empty_with_null(tuple):
 
 ### Main()
 if (len(sys.argv)==2):
-    load(sys.argv[1])
-else:
-    load(os.getcwd())
+    os.chdir(sys.argv[1])
+load()
