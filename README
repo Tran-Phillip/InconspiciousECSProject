@@ -1,0 +1,15 @@
+Structure of program
+
+load() -> sets up the connection and calls create_tables, then parses every CSV file
+
+create_tables() -> creates the tables
+
+parse_file() -> opens each file and parses each line and saves the information into 3 categories
+                the course_tuple, the meeting_tuple, and the seating_tuple.
+
+parse_course/seating/meetings -> parses each line and puts each attribute into list
+
+insert_into_table(course_tuple, meetings_tuple, seating_tuple) -> inserts the three tuples into a table
+
+replace_empty_with_null(tuple) -> replaces all the empty elements with NULL in our tuple. Unsure if we want to do that, but its
+                                  easier to remove than to add. lol
