@@ -102,108 +102,65 @@ def make_equal(tuple, num_attributes):
 
     return tuple
 
-def parse_course(stream, num_attributes):
+def parse_course(csvreader):
     ''' returns all information on the courses'''
-    line = iter(stream).next()
-    tuple = []
+    tuple = next(csvreader)
 
-    if( len(line) == 3 ): # -> the line contains just '""'
-        for num in range(0, num_attributes): # -> return a tuple full of nulls
-            tuple.append("NULL")
-        return tuple
-    else:
-        line = line.strip()
-        tuple = re.split(r'[,\"]+', line)
-        tuple = clean_up(tuple)
-
-        tuple = replace_empty_with_null(tuple)
-
-        tuple = tuple[0:num_attributes] # -> there are more columns than attributes for some reason
-
-        iter(stream).next() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
-                          # -> so we will just ignore it and move onto the next category
+    if(len(tuple) != 1): # not an empty tuple
+        next(csvreader) #discard the newline
 
     return tuple
 
 
 def parse_file(csv_file, cur):
     '''parses the overall file and adds all the infomation into our tables '''
-    count = 0 #remove me later
 
-    stream = open(os.getcwd() + '/' + csv_file, 'r')  #FIXME: allow user to specify path
-    iter(stream).next() # -> first line in file is always an empty tuple so we can just discard it
+    fields = []
+    rows = []
+    # reading csv file
+    print(csv_file)
+    with open(csv_file, 'r') as csvfile:
+        # creating a csv reader object
+        csvreader = csv.reader(csvfile)
 
-
-    for course_info in stream:
-        if(csv_file == "1990_Q2.csv"):
-            print(course_info)
-        course_tuple = parse_course(stream,6)
-        meeting_tuple = parse_meetings(stream,6)
-        seating_tuple = parse_seating(stream,11)
-
-        insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur);
-        #print(course_tuple)
-
-
-        count+=1 #remove me later
-
-    #cur.execute("SELECT * from meetings_tbl")
-    #all = cur.fetchall()
-    #for x in all:
-    #    print(x)
-    stream.close()
+        # extracting field names through first row
+        next(csvreader)
+        # extracting each data row one by one
+        for row in csvreader:
+            course_tuple = parse_course(csvreader)
+            meeting_tuple = parse_meetings(csvreader)
+            seating_tuple = parse_seating(csvreader)
 
 
-def parse_meetings(stream, num_attributes):
+            #print(course_tuple)
+            #print(meeting_tuple)
+            #print(seating_tuple)
+        # get total number of rows
+        print("Total no. of rows: %d"%(csvreader.line_num))
+
+
+
+def parse_meetings(csvreader):
     ''' returns information about the meetings'''
+    header = next(csvreader)
+    meeting_tuple = next(csvreader)
+    if(len(meeting_tuple) != 1):
+        test = next(csvreader) #skip the new line
+    return meeting_tuple
 
-    attr_names = iter(stream).next()
+def parse_seating(csvreader):
+    '''returns a list of list with the seating info'''
 
-    line = iter(stream).next()
-    tuple = []
-
-    if( len(line) == 3): # -> the line contains just '""'
-        for num in range(0, num_attributes): # -> return a tuple full of nulls
-            tuple.append("NULL")
-        return tuple
-    else:
-        line = line.strip()
-        #tuple = re.split(r'[,\"]+', line)
-        tuple = line.split(',')
-
-        if(tuple[0] != '\"\"'):
-            tuple[0] = (tuple[0] + "," + tuple[1]) #reconstruct the name
-            tuple.pop(1) #remove the extra attrbiute
+    header = next(csvreader)
+    tuple = next(csvreader)
+    seating_tuple = []
+    while(tuple[0] != ""):
+        seating_tuple.append(tuple)
+        tuple = next(csvreader)
 
 
-        tuple = replace_empty_with_null(tuple)
 
-        tuple = tuple[0:num_attributes]
-
-        iter(stream).next() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
-                          # -> so we will just ignore it and move onto the next category
-
-    return tuple
-
-def parse_seating(stream, num_attributes):
-    ''' returns a list of list containing each students information '''
-    attr_names = iter(stream).next()
-    tuple = [[]]
-    line = "hello world!"
-
-    while(len(line) > 3 ):
-        line = iter(stream).next()
-        line = line.strip()
-        if('\'' in line):
-            line = line.replace('\'',"_")
-
-        tuple2 = line.split(',')
-
-        tuple.append(tuple2)
-
-    tuple.pop(len(tuple) - 1) # -> some reason first tuple is empty...?
-
-    return tuple
+    return seating_tuple
 
 def replace_empty_with_null(tuple):
     ''' finds and replaces all empty attributes with null'''
