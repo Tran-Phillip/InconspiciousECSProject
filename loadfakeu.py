@@ -88,7 +88,7 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
 
 def parse_course(stream, num_attributes):
     ''' returns all information on the courses'''
-    line = stream.readline()
+    line = iter(stream).next()
     tuple = []
 
     if( len(line) == 3 ): # -> the line contains just '""'
@@ -100,7 +100,7 @@ def parse_course(stream, num_attributes):
         tuple = line.split(',')
         tuple = tuple[0:num_attributes ] # -> there are more columns than attributes for some reason
         tuple = replace_empty_with_null(tuple)
-        stream.readline() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
+        iter(stream).next() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
                           # -> so we will just ignore it and move onto the next category
 
     return tuple
@@ -110,8 +110,8 @@ def parse_file(csv_file, cur):
     '''parses the overall file and adds all the infomation into our tables '''
     count = 0 #remove me later
 
-    stream = open("./testing/" + csv_file, 'r')  #FIXME: allow user to specify path
-    stream.readline() # -> first line in file is always an empty tuple so we can just discard it
+    stream = open(os.getcwd() + '/' + csv_file, 'r')  #FIXME: allow user to specify path
+    iter(stream).next() # -> first line in file is always an empty tuple so we can just discard it
 
     for course_info in stream:
         if(count == 3):# -> use this to control how many iterations you want to run. good for debugging.
@@ -130,7 +130,13 @@ def parse_file(csv_file, cur):
         course_tuple = parse_course(stream,6)
         meeting_tuple = parse_meetings(stream,6)
         seating_tuple = parse_seating(stream,11)
-        insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur);
+
+#	print(course_tuple)
+#	print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+#	print(meeting_tuple)
+#	print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+#	print(seating_tuple)
+#        insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur);
 
         count+=1 #remove me later
 
@@ -138,9 +144,9 @@ def parse_file(csv_file, cur):
 def parse_meetings(stream, num_attributes):
     ''' returns information about the meetings'''
 
-    attr_names = stream.readline()
+    attr_names = iter(stream).next()
 
-    line = stream.readline()
+    line = iter(stream).next()
     tuple = []
 
     if( len(line) == 3): # -> the line contains just '""'
@@ -157,22 +163,22 @@ def parse_meetings(stream, num_attributes):
             tuple = tuple[0:num_attributes]
 
         tuple = replace_empty_with_null(tuple)
-        stream.readline() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
+        iter(stream).next() # -> if there is a non-empty tuple in the file, then the next line read is an empty 'space' buffer
                           # -> so we will just ignore it and move onto the next category
 
     return tuple
 
 def parse_seating(stream, num_attributes):
     ''' returns a list of list containing each students information '''
-    attr_names = stream.readline()
+    attr_names = iter(stream).next()
     tuple = []
-    line = stream.readline()
+    line = iter(stream).next()
 
     while(len(line) > 3 ):
         line = line.strip()
         line = line.split(',')
         tuple.append(line)
-        line = stream.readline()
+        line = iter(stream).next()
 
     return tuple
 
