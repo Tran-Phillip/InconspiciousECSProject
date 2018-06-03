@@ -74,25 +74,13 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
     ''' inserts a set of tuples into their representive tables'''
 
     CID = course_tuple[0]
-
+    if(len(course_tuple) == 5):
+        course_tuple.insert(NULL, 5)
 
     cur.execute("INSERT INTO course_tbl( CID,TERM,SUBJ,CRSE,SEC,UNITS)"\
                  "VALUES (" + CID + ',' + course_tuple[1] + ',\'' + course_tuple[2] + '\',' +  course_tuple[3] + \
                  ',' + course_tuple[4] + ',\''  + course_tuple[5] +"\');")
 
-    cur.execute("INSERT INTO meetings_tbl( CID,INSTRUCTORS,TYPE,DAYS,TIMEE,BUILDING,ROOM)"\
-                 "VALUES ("+ CID + ',\'' + meeting_tuple[0] + '\',\'' + meeting_tuple[1] + '\',\'' + meeting_tuple[2] + \
-                  '\',\'' +  meeting_tuple[3] + '\',\'' + meeting_tuple[4] + '\',\''  + meeting_tuple[5] +"\');")
-
-    for tuple in seating_tuple:
-        if(len(tuple) == 0):
-            break
-        cur.execute("INSERT INTO seating_tbl( CID, SEAT,SID, SURNAME, PREFNAME, LEVEL, UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
-                     "VALUES ("+ CID + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' + tuple[2] + \
-                      '\',\'' +  tuple[3] + '\',\'' + tuple[4] + '\',\''  + tuple[5] +\
-                      '\',\'' +  tuple[6] + '\',\'' + tuple[7] + '\',\''  + tuple[8] +\
-                      '\',\'' +  tuple[9] + '\',\'' +\
-                      "\');")
 
 def make_equal(tuple, num_attributes):
 
@@ -130,11 +118,11 @@ def parse_file(csv_file, cur):
             course_tuple = parse_course(csvreader)
             meeting_tuple = parse_meetings(csvreader)
             seating_tuple = parse_seating(csvreader)
-
+            insert_into_table(course_tuple, meeting_tuple, seating_tuple, cur)
 
             #print(course_tuple)
-            #print(meeting_tuple)
-            #print(seating_tuple)
+
+
         # get total number of rows
         print("Total no. of rows: %d"%(csvreader.line_num))
 
@@ -145,11 +133,20 @@ def parse_meetings(csvreader):
     meeting_tuple = []
     try:
         header = next(csvreader)
-        meeting_tuple = next(csvreader)
+        tuple = next(csvreader)
     except:
         return meeting_tuple
-    if(len(meeting_tuple) != 1):
-        test = next(csvreader) #skip the new line
+
+    while(tuple[0] != "" or len(tuple) != 1):
+        tuple = replace_empty_with_null(tuple)
+        meeting_tuple.append(tuple)
+        try:
+            tuple = next(csvreader)
+        except:
+            return
+
+
+
     return meeting_tuple
 
 def parse_seating(csvreader):
@@ -178,7 +175,7 @@ def replace_empty_with_null(tuple):
     refined_tuple = []
     for index in range(0, len(tuple)): #for some reason the regex split adds a '' to the begining and end of the tuple
                                # we will account for it here
-        if(tuple[index] == "\"\"" or tuple[index] == ''):
+        if(tuple[index] == ''):
             refined_tuple.append("NULL")
         else:
             refined_tuple.append(tuple[index])
