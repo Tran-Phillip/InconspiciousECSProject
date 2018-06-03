@@ -36,10 +36,10 @@ def create_tables(cur):
     cur.execute("CREATE TABLE meetings_tbl (\
                 CID Integer,\
                 INSTRUCTORS VARCHAR(50),\
-                TYPE VARCHAR(20),\
-                DAYS VARCHAR(20),\
+                TYPE VARCHAR(30),\
+                DAYS VARCHAR(30),\
                 TIMEE VARCHAR(50),\
-                BUILDING VARCHAR(20),\
+                BUILDING VARCHAR(50),\
                 ROOM VARCHAR(10)\
     );")
 
@@ -55,7 +55,7 @@ def create_tables(cur):
                 MAJOR VARCHAR(10),\
                 GRADE VARCHAR(10),\
                 STATUS VARCHAR(50),\
-                EMAIL VARCHAR(30)\
+                EMAIL VARCHAR(50)\
     );")
 
 def load():
@@ -74,13 +74,32 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
     ''' inserts a set of tuples into their representive tables'''
 
     CID = course_tuple[0]
+    if(CID == ""):
+        CID = 'NULL'
     if(len(course_tuple) == 5):
         course_tuple.insert(NULL, 5)
 
-    cur.execute("INSERT INTO course_tbl( CID,TERM,SUBJ,CRSE,SEC,UNITS)"\
-                 "VALUES (" + CID + ',' + course_tuple[1] + ',\'' + course_tuple[2] + '\',' +  course_tuple[3] + \
-                 ',' + course_tuple[4] + ',\''  + course_tuple[5] +"\');")
+    if(course_tuple[0] == '' and len(course_tuple) == 1): #-> empty tuple
+        pass
+    else:
+        cur.execute("INSERT INTO course_tbl( CID,TERM,SUBJ,CRSE,SEC,UNITS)"\
+                     "VALUES (" + CID + ',' + course_tuple[1] + ',\'' + course_tuple[2] + '\',' +  course_tuple[3] + \
+                     ',' + course_tuple[4] + ',\''  + course_tuple[5] +"\');")
 
+    for tuple in meeting_tuple:
+        cur.execute("INSERT INTO meetings_tbl(CID, INSTRUCTORS,TYPE,DAYS,TIMEE,BUILDING,ROOM)"\
+                     "VALUES (" + CID + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' +  tuple[2] + \
+                     '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5]  +"\');")
+
+    if(not seating_tuple):
+        return
+
+    for tuple in seating_tuple:
+        cur.execute("INSERT INTO seating_tbl(CID,SEAT,SID,SURNAME,PREFNAME,LEVEL,UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
+                    "VALUES (" + CID + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' +  tuple[2] + \
+                    '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5] + '\',\'' \
+                     + tuple[6] + '\',\''  + tuple[7] + "\'" + ',\'' + tuple[8] + '\',\'' + tuple[9] + '\',\''  + tuple[10]\
+                     + "\');")
 
 def make_equal(tuple, num_attributes):
 
@@ -139,6 +158,8 @@ def parse_meetings(csvreader):
 
     while(tuple[0] != "" or len(tuple) != 1):
         tuple = replace_empty_with_null(tuple)
+        if('\'' in tuple[0]):
+            tuple[0] = tuple[0].replace('\'','_')
         meeting_tuple.append(tuple)
         try:
             tuple = next(csvreader)
@@ -160,6 +181,10 @@ def parse_seating(csvreader):
         return seating_tuple
 
     while(tuple[0] != ""):
+        if('\'' in tuple[2]):
+            tuple[2] = tuple[2].replace('\'', '_')
+        if('\'' in tuple[10]):
+            tuple[10] = tuple[10].replace('\'', '_')
         seating_tuple.append(tuple)
         try:
             tuple = next(csvreader)
