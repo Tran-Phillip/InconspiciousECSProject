@@ -48,7 +48,7 @@ def create_tables(cur):
                 SURNAME VARCHAR(30),\
                 PREFNAME VARCHAR(30),\
                 LEVEL CHAR(4),\
-                UNITS VARCHAR(20),\
+                UNITS real,\
                 CLASS VARCHAR(10),\
                 MAJOR VARCHAR(10),\
                 GRADE VARCHAR(10),\
@@ -97,6 +97,7 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
         return
 
     for tuple in seating_tuple:
+        print(tuple)
         cur.execute("INSERT INTO seating_tbl(CID, TERM,SEAT,SID,SURNAME,PREFNAME,LEVEL,UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
                     "VALUES (" + CID + "," + TERM + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' +  tuple[2] + \
                     '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5] + '\',\'' \
@@ -189,7 +190,7 @@ def parse_seating(csvreader):
         if('\'' in tuple[10]):
             tuple[10] = tuple[10].replace('\'', '_')
         if(tuple[5]==""):
-            tuple[5]=="0"
+            tuple[5]='0'
         seating_tuple.append(tuple)
         try:
             tuple = next(csvreader)
