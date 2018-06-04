@@ -69,7 +69,7 @@ def load():
         if(files.endswith(".csv")):
             parse_file(files, cur)
 
-    #cur.execute("COMMIT;")
+    cur.execute("COMMIT;")
 
 def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: insert multiple tuples at a time rather than one at a time
     ''' inserts a set of tuples into their representive tables'''
@@ -188,6 +188,8 @@ def parse_seating(csvreader):
             tuple[2] = tuple[2].replace('\'', '_')
         if('\'' in tuple[10]):
             tuple[10] = tuple[10].replace('\'', '_')
+        if(tuple[5]==""):
+            tuple[5]=="0"
         seating_tuple.append(tuple)
         try:
             tuple = next(csvreader)
