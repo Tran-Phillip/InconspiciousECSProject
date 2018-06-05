@@ -47,9 +47,10 @@ def execute_queries(files,cur):
 
     query_3a(cur)
     #query_3b(cur)
-    query_3c(cur)
+    #query_3c(cur)
 
     '''
+sorry it was easy to combo the queries with python
     query = ""
     with open(files, 'r') as q_file:
         for line in q_file:
