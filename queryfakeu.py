@@ -45,10 +45,10 @@ def load():
 
 def execute_queries(files,cur):
 
-    query_3a(cur)
+    #query_3a(cur)
     #query_3b(cur)
     #query_3c(cur)
-
+    query_3d(cur)
     '''
 sorry it was easy to combo the queries with python
     query = ""
@@ -165,6 +165,74 @@ def query_3c(cur):
 
         avg_gpa = total_GPA / count[0][0]
         print("The average GPA for " + str(units) + " units is: ", str(round(avg_gpa,2)))
+
+def query_3d(cur):
+    print("Highest Pass Rates!")
+
+
+    cur.execute("SELECT CID,TERM, PR FROM \
+                (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
+                    (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
+                    WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
+                     GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                     ORDER BY CID\
+                     ) AS PASSING_COUNT\
+                     NATURAL JOIN\
+                     (SELECT CID, TERM, COUNT(SID) AS T2 FROM seating_tbl\
+                     GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                     ORDER BY CID\
+                 ) AS NON_PASSING_COUNT) AS FU WHERE PR = (SELECT MAX(PR) FROM \
+                    (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
+                        (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
+                        WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
+                         GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                         ORDER BY CID\
+                         ) AS PASSING_COUNT\
+                         NATURAL JOIN\
+                         (SELECT CID, TERM, COUNT(SID) AS T2 FROM seating_tbl\
+                         GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                         ORDER BY CID\
+                     ) AS NON_PASSING_COUNT) AS FU2\
+                 )\
+                 ")
+
+    res = cur.fetchall()
+    for el in res:
+        print(el)
+
+    print("Lowest Pass Rates!")
+    cur.execute("SELECT CID,TERM, PR FROM \
+                (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
+                    (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
+                    WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
+                     GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                     ORDER BY CID\
+                     ) AS PASSING_COUNT\
+                     NATURAL JOIN\
+                     (SELECT CID, TERM, COUNT(SID) AS T2 FROM seating_tbl\
+                     WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'NP','NS')\
+                     GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                     ORDER BY CID\
+                 ) AS NON_PASSING_COUNT) AS FU WHERE PR = (SELECT MIN(PR) FROM \
+                    (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
+                        (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
+                        WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
+                         GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                         ORDER BY CID\
+                         ) AS PASSING_COUNT\
+                         NATURAL JOIN\
+                         (SELECT CID, TERM, COUNT(SID) AS T2 FROM seating_tbl\
+                         WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'NP','NS')\
+                         GROUP BY CID,TERM HAVING COUNT(SID) > 1\
+                         ORDER BY CID\
+                     ) AS NON_PASSING_COUNT) AS FU2\
+                 )\
+                 ")
+
+
+    res = cur.fetchall()
+    for el in res:
+        print(el)
 
 
 ### Main()
