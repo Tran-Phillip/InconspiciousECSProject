@@ -7,6 +7,7 @@ import csv
 #######################################################################
 #   Stuff we still need to do:
 #   #TODO: restructure code to remove repetition
+#   #FIXME: What is our primary key here?
 ########################################################################
 
 def clean_up(tuple):
@@ -97,7 +98,6 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
         return
 
     for tuple in seating_tuple:
-        print(tuple)
         cur.execute("INSERT INTO seating_tbl(CID, TERM,SEAT,SID,SURNAME,PREFNAME,LEVEL,UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
                     "VALUES (" + CID + "," + TERM + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' +  tuple[2] + \
                     '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5] + '\',\'' \
