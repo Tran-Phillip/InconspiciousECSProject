@@ -47,6 +47,7 @@ def execute_queries(files,cur):
 
     #query_3a(cur)
     query_3b(cur)
+    #query_3c(cur)
 
     '''
     query = ""
@@ -103,8 +104,7 @@ def query_3b(cur):
     grades_dir = {}
     count_dir = {}
 
-
-
+    cur.execute("CREATE TABLE gpa_tbl(NAME VARCHAR(30), GPA REAL)")
     cur.execute("SELECT s.CID,s.SID,s.GRADE,m.INSTRUCTORS\
     from seating_tbl AS s\
     INNER JOIN meetings_tbl as m ON m.CID = s.CID AND m.TERM = s.TERM\
@@ -121,43 +121,28 @@ def query_3b(cur):
             grades_dir[el[3]] = convert_grades(el[2])
             count_dir[el[3]] = 1
 
-    #for key in grades_dir:
-    #    print(key + ":" + str(grades_dir[key] / count_dir[key]))
-
-    min_prof = ""
-    min_GPA = 999
-
-    max_prof = ""
-    max_GPA = 0
-
     for key in grades_dir:
-        if(round(grades_dir[key] / count_dir[key], 2) < min_GPA):
-            min_GPA = round(grades_dir[key] / count_dir[key])
-            min_prof = key
-        if(round(grades_dir[key] / count_dir[key],2) > max_GPA):
-            max_GPA = grades_dir[key] / count_dir[key]
-            max_prof = key
+        cur.execute("INSERT INTO gpa_tbl( NAME, GPA)"\
+                    "VALUES (\'" + key+ '\',\'' + str(round(grades_dir[key] / count_dir[key],3)) + "\')")
+    cur.execute("SELECT NAME, GPA\
+                FROM gpa_tbl\
+                WHERE GPA = (SELECT MAX(GPA) FROM gpa_tbl)\
+                ")
 
-    best_profs = []
-    worst_profs = [min_prof]
-    max_GPA = round(max_GPA, 2)
-    min_GPA = round(min_GPA, 2)
-    for key in grades_dir:
-        if(round(grades_dir[key] / count_dir[key], 2) == max_GPA):
-            best_profs.append(key)
-        if(round(grades_dir[key] / count_dir[key], 2) == min_GPA)  :
-            worst_profs.append(key)
+    res = cur.fetchall()
+    print("Best Profs: ")
+    for x in res:
+        print(x)
 
-    print("Best Profs w/ GPA: ", max_GPA)
-    for el in best_profs:
-        print(el),
-        print " , ",
-    print("\n")
-    print("Worst Prof w/ GPA: ", min_GPA)
-    for el in worst_profs:
-        print(el),
-        print " , ",
-    print("\n")
+    cur.execute("SELECT NAME, GPA\
+                FROM gpa_tbl\
+                WHERE GPA = (SELECT MIN(GPA) FROM gpa_tbl)\
+                ")
+    res2 = cur.fetchall()
+    print("Worst Profs: ")
+    for el in res2:
+        print(el)
+
 
 
 ### Main()
