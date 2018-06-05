@@ -45,9 +45,9 @@ def load():
 
 def execute_queries(files,cur):
 
-    #query_3a(cur)
-    query_3b(cur)
-    #query_3c(cur)
+    query_3a(cur)
+    #query_3b(cur)
+    query_3c(cur)
 
     '''
     query = ""
@@ -143,6 +143,27 @@ def query_3b(cur):
     for el in res2:
         print(el)
 
+
+def query_3c(cur):
+
+    for units in range(1,20):
+        total_GPA = 0
+        cur.execute("SELECT SID, PREFNAME, GRADE FROM seating_tbl\
+                     WHERE UNITS ="+ str(units)+" AND GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')")
+
+        res = cur.fetchall()
+        for x in res:
+            total_GPA += convert_grades(x[2])
+        cur.execute("SELECT COUNT(GRADE) FROM seating_tbl\
+                                                WHERE UNITS ="+str(units)+" AND GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')")
+        count = cur.fetchall()
+
+        if(count[0][0] == 0):
+            print("Nobody taking " + str(units) +" units for a grade!")
+            continue
+
+        avg_gpa = total_GPA / count[0][0]
+        print("The average GPA for " + str(units) + " units is: ", str(round(avg_gpa,2)))
 
 
 ### Main()
