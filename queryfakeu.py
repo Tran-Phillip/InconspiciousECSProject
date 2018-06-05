@@ -46,10 +46,10 @@ def load():
 def execute_queries(files,cur):
 
     #query_3a(cur)
-    #query_3b(cur)
+    query_3b(cur)
     #query_3c(cur)
 
-    query_3d(cur)
+    #query_3d(cur)
 
 def query_3a(cur):
 
