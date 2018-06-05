@@ -45,8 +45,8 @@ def load():
 
 def execute_queries(files,cur):
 
-    #query_3a(cur)
-    query_3b(cur)
+    query_3a(cur)
+    #query_3b(cur)
     #query_3c(cur)
 
     #query_3d(cur)
@@ -58,21 +58,25 @@ def query_3a(cur):
     total_count = []
 
 
-    cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
-    total_count = cur.fetchall()
-    print(total_count) #count of unique student in each quarter
-
+    # cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
+    # total_count = cur.fetchall()
+    # print(total_count) #count of unique student in each quarter
     for i in range(0,21):
-        cur.execute("\
-            SELECT TERM,COUNT(*) FROM(SELECT TERM,SID,SUM(UNITS) \
-            FROM seating_tbl \
-            GROUP BY TERM,SID,UNITS HAVING SUM(UNITS)="+str(i)+" \
-            ORDER BY TERM) AS FOO GROUP BY TERM")
-        term.append(cur.fetchall())
+        print("UNITS: ",str(i))
+        cur.execute("SELECT TERM,CAST(C AS FLOAT) / CAST(C1 AS FLOAT) AS PR FROM \
+                    ((SELECT COUNT(t.SID) AS C,TERM FROM\
+                        (select DISTINCT(SID),TERM FROM seating_tbl GROUP BY SID,TERM HAVING SUM(UNITS) =" +str(i) +") AS T\
+                        GROUP BY TERM ORDER BY TERM) \
+                    ) AS T1\
+                    NATURAL JOIN\
+                    (SELECT COUNT(DISTINCT SID) AS C1, TERM FROM seating_tbl GROUP BY TERM) AS T2\
+                    GROUP BY TERM, C, C1 ORDER BY TERM\
+                    ")
 
-    for i in range(0,len(term)):
-        print("UNITS: ", i)
-        print(term[i])
+
+        res = cur.fetchall()
+        for x in res:
+            print(x)
 
 # this looks like it's giving proper data but the issue is that it doesn't input 0 if there's nobody that year so the alignment gets screwed up... not sure what the best way to fix this is....
 
