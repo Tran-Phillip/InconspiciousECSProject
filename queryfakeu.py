@@ -48,36 +48,39 @@ def execute_queries(files,cur):
     #query_3a(cur)
     #query_3b(cur)
     #query_3c(cur)
-    query_3d(cur)
-    '''
-sorry it was easy to combo the queries with python
-    query = ""
-    with open(files, 'r') as q_file:
-        for line in q_file:
-            query+=line
-    query = query.replace('\n','')
-    query = query.replace('\t','')
-    print(query)
-    cur.copy_expert(query, sys.stdout)
 
-    '''
+    query_3d(cur)
 
 def query_3a(cur):
 
     term = []
-    count_shit = []
-    total_count_shit = []
+    total_percent = []
+    total_count = []
 
 
-    for i in range(0,20):
+    cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
+    total_count = cur.fetchall()
+    print(total_count) #count of unique student in each quarter
+
+    for i in range(0,21):
+        cur.execute("\
+SELECT TERM,COUNT(*) FROM(SELECT TERM,SID,SUM(UNITS) \
+FROM seating_tbl \
+GROUP BY TERM,SID,UNITS HAVING SUM(UNITS)="+str(i)+" \
+ORDER BY TERM) AS FOO GROUP BY TERM")
+        term.append(cur.fetchall())
+
+    for i in range(0,len(term)):
         print("UNITS: ", i)
-        cur.execute("SELECT COUNT(foo.UNITS) , TERM FROM (SELECT UNITS,TERM FROM seating_tbl WHERE UNITS =" + str(i) + ") AS foo\
-          GROUP BY foo.TERM\
-          ORDER BY foo.TERM"
-        )
+        print(term[i])
 
-        x = cur.fetchall()
+# this looks like it's giving proper data but the issue is that it doesn't input 0 if there's nobody that year so the alignment gets screwed up... not sure what the best way to fix this is....
 
+
+#99% sure that total is not done efficiently... also this missing about 1600 records which I believe are students that had a SID defined but not units or something like that and some are definitely just people who are >20 units
+#        print(total_percent)
+
+'''
         for el in x:
             count_shit.append(el[0])
             term.append(el[1])
@@ -99,6 +102,7 @@ def query_3a(cur):
         term = []
         count_shit = []
         total_count_shit = []
+'''
 
 
 def query_3b(cur):
@@ -147,7 +151,7 @@ def query_3b(cur):
 
 def query_3c(cur):
 
-    for units in range(1,20):
+    for units in range(1,21): #range was off and this should be broken since 3a was done wrong but I don't exactly see where it's doing anything with the terms...
         total_GPA = 0
         cur.execute("SELECT SID, PREFNAME, GRADE FROM seating_tbl\
                      WHERE UNITS ="+ str(units)+" AND GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')")
