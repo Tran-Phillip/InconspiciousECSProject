@@ -66,18 +66,24 @@ def query_3a(cur):
 
     term = []
     count_shit = []
-    total_count_shit = []
+    total_count = []
 
 
-    for i in range(0,20):
+    cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
+    total_count = cur.fetchall()
+    print(total_count)
+    z=0
+    for i in total_count:
+        z+=i[0]
+    print(z)
+
+    for i in range(0,21):
+        cur.execute("SELECT COUNT(*) FROM (SELECT(SID,TERM) FROM seating_tbl GROUP BY TERM,SID HAVING SUM(UNITS)="+str(i)+" ORDER BY SID) as FOO")
+        a=cur.fetchall()
         print("UNITS: ", i)
-        cur.execute("SELECT COUNT(foo.UNITS) , TERM FROM (SELECT UNITS,TERM FROM seating_tbl WHERE UNITS =" + str(i) + ") AS foo\
-          GROUP BY foo.TERM\
-          ORDER BY foo.TERM"
-        )
-
-        x = cur.fetchall()
-
+        print(a/z)
+#99% sure that total is not done efficiently... also this missing about 1600 records which I believe are students that had a SID defined but not units or something like that and some are definitely just people who are >20 units
+'''
         for el in x:
             count_shit.append(el[0])
             term.append(el[1])
@@ -99,6 +105,7 @@ def query_3a(cur):
         term = []
         count_shit = []
         total_count_shit = []
+'''
 
 
 def query_3b(cur):
