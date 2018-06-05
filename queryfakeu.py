@@ -45,10 +45,10 @@ def load():
 
 def execute_queries(files,cur):
 
-    query_3a(cur)
+    #query_3a(cur)
     #query_3b(cur)
     #query_3c(cur)
-
+     query_3d(cur)
 def query_3a(cur):
 
     term = []
@@ -149,7 +149,7 @@ def query_3b(cur):
 
 def query_3c(cur):
 
-    for units in range(1,20):
+    for units in range(1,21): #range was off and this should be broken since 3a was done wrong but I don't exactly see where it's doing anything with the terms...
         total_GPA = 0
         cur.execute("SELECT SID, PREFNAME, GRADE FROM seating_tbl\
                      WHERE UNITS ="+ str(units)+" AND GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')")
@@ -168,6 +168,37 @@ def query_3c(cur):
         avg_gpa = total_GPA / count[0][0]
         print("The average GPA for " + str(units) + " units is: ", str(round(avg_gpa,2)))
 
+def query_3d(cur):
+    cur.execute("SELECT TERM,CID,SUM(CASE \
+when GRADE = 'F' then 0 \
+when GRADE = 'NP' then 0 \
+when GRADE = 'NS' then 0 \
+else 1 \
+end \
+)/SUM(CASE \
+when GRADE = 'Z' then 0.0 \
+else 1.0 \
+end) AS PASSRATE \
+FROM seating_tbl GROUP BY TERM,CID ORDER BY PASSRATE DESC LIMIT 1")
+    high=cur.fetchall()
+#    print(high)
+    print("Highest passrate is CID: "+str(high[0][1])+" TERM: "+str(high[0][0])+" PASSRATE: " +str(round(high[0][2],2)))
+
+    cur.execute("SELECT TERM,CID,SUM(CASE \
+when GRADE = 'F' then 0 \
+when GRADE = 'NP' then 0 \
+when GRADE = 'NS' then 0 \
+else 1 \
+end \
+)/SUM(CASE \
+when GRADE = 'Z' then 0.0 \
+else 1.0 \
+end) AS PASSRATE \
+FROM seating_tbl GROUP BY TERM,CID ORDER BY PASSRATE ASC LIMIT 1")
+    low=cur.fetchall()
+    print("Lowest passrate is CID: "+str(low[0][1])+" TERM: "+str(low[0][0])+" PASSRATE: " +str(round(low[0][2],2)))
+
+#Z in the above is just a random non-letter grade
 
 ### Main()
 if (len(sys.argv)==2):
