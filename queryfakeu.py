@@ -7,6 +7,32 @@ import re
 #   Stuff we still need to do:
 ########################################################################
 
+def convert_grades(grade):
+    if(grade == 'A'):
+        return 4.0
+    elif(grade == 'A-'):
+        return 3.7
+    elif(grade == 'B+'):
+        return 3.3
+    elif(grade == 'B'):
+        return 3.0
+    elif(grade == 'B-'):
+        return 2.7
+    elif(grade == 'C+'):
+        return 2.3
+    elif(grade == 'C'):
+        return 2.0
+    elif(grade == 'C-'):
+        return 1.7
+    elif(grade == 'D+'):
+        return 1.3
+    elif(grade == 'D'):
+        return 1.0
+    elif(grade == 'D-'):
+        return .7
+    else:
+        return 0
+
 def load():
     ''' loads the program '''
 
@@ -19,7 +45,8 @@ def load():
 
 def execute_queries(files,cur):
 
-    query_3a(cur)
+    #query_3a(cur)
+    query_3b(cur)
 
     '''
     query = ""
@@ -71,6 +98,66 @@ def query_3a(cur):
         count_shit = []
         total_count_shit = []
 
+
+def query_3b(cur):
+    grades_dir = {}
+    count_dir = {}
+
+
+
+    cur.execute("SELECT s.CID,s.SID,s.GRADE,m.INSTRUCTORS\
+    from seating_tbl AS s\
+    INNER JOIN meetings_tbl as m ON m.CID = s.CID AND m.TERM = s.TERM\
+    WHERE s.GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')\
+    ")
+    res = cur.fetchall()
+    for el in res:
+        if(el[3] == 'NULL'):
+            continue
+        if(el[3] in grades_dir):
+            grades_dir[el[3]] += convert_grades(el[2])
+            count_dir[el[3]] += 1
+        else:
+            grades_dir[el[3]] = convert_grades(el[2])
+            count_dir[el[3]] = 1
+
+    #for key in grades_dir:
+    #    print(key + ":" + str(grades_dir[key] / count_dir[key]))
+
+    min_prof = ""
+    min_GPA = 999
+
+    max_prof = ""
+    max_GPA = 0
+
+    for key in grades_dir:
+        if(round(grades_dir[key] / count_dir[key], 2) < min_GPA):
+            min_GPA = round(grades_dir[key] / count_dir[key])
+            min_prof = key
+        if(round(grades_dir[key] / count_dir[key],2) > max_GPA):
+            max_GPA = grades_dir[key] / count_dir[key]
+            max_prof = key
+
+    best_profs = []
+    worst_profs = [min_prof]
+    max_GPA = round(max_GPA, 2)
+    min_GPA = round(min_GPA, 2)
+    for key in grades_dir:
+        if(round(grades_dir[key] / count_dir[key], 2) == max_GPA):
+            best_profs.append(key)
+        if(round(grades_dir[key] / count_dir[key], 2) == min_GPA)  :
+            worst_profs.append(key)
+
+    print("Best Profs w/ GPA: ", max_GPA)
+    for el in best_profs:
+        print(el),
+        print " , ",
+    print("\n")
+    print("Worst Prof w/ GPA: ", min_GPA)
+    for el in worst_profs:
+        print(el),
+        print " , ",
+    print("\n")
 
 
 ### Main()
