@@ -49,40 +49,35 @@ def execute_queries(files,cur):
     #query_3b(cur)
     #query_3c(cur)
 
-    '''
-sorry it was easy to combo the queries with python
-    query = ""
-    with open(files, 'r') as q_file:
-        for line in q_file:
-            query+=line
-    query = query.replace('\n','')
-    query = query.replace('\t','')
-    print(query)
-    cur.copy_expert(query, sys.stdout)
-
-    '''
-
 def query_3a(cur):
 
     term = []
-    count_shit = []
+    total_percent = []
     total_count = []
 
 
     cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
     total_count = cur.fetchall()
-    print(total_count)
-    z=0
-    for i in total_count:
-        z+=i[0]
-    print(z)
+    print(total_count) #count of unique student in each quarter
 
     for i in range(0,21):
-        cur.execute("SELECT COUNT(*) FROM (SELECT(SID,TERM) FROM seating_tbl GROUP BY TERM,SID HAVING SUM(UNITS)="+str(i)+" ORDER BY SID) as FOO")
-        a=cur.fetchall()
+        cur.execute("\
+SELECT TERM,COUNT(*) FROM(SELECT TERM,SID,SUM(UNITS) \
+FROM seating_tbl \
+GROUP BY TERM,SID,UNITS HAVING SUM(UNITS)="+str(i)+" \
+ORDER BY TERM) AS FOO GROUP BY TERM")
+        term.append(cur.fetchall())
+
+    for i in range(0,len(term)):
         print("UNITS: ", i)
-        print(a/z)
+        print(term[i])	
+
+# this looks like it's giving proper data but the issue is that it doesn't input 0 if there's nobody that year so the alignment gets screwed up... not sure what the best way to fix this is....
+
+
 #99% sure that total is not done efficiently... also this missing about 1600 records which I believe are students that had a SID defined but not units or something like that and some are definitely just people who are >20 units
+#        print(total_percent)
+
 '''
         for el in x:
             count_shit.append(el[0])
