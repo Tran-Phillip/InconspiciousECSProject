@@ -214,18 +214,26 @@ def query_3d(cur):
     res = cur.fetchall()
     for el in res:
         print(el)
+def query_3e(cur):
+    cur.execute("SELECT DISTINCT T1.CID,T2.CID,T1.TERM FROM\
+                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE,SUBJ,BUILDING,ROOM FROM meetings_tbl NATURAL JOIN course_tbl) AS T1 \
+                CROSS JOIN  \
+                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE,SUBJ,BUILDING,ROOM FROM meetings_tbl NATURAL JOIN course_tbl) AS T2 \
+                WHERE (NOT CAST (T1.TERM AS VARCHAR) LIKE '____06') AND (NOT T1.DAYS='NULL') AND (NOT T1.INSTRUCTORS='NULL') AND (NOT T1.SUBJ='NULL') AND T1.CID>T2.CID AND T1.BUILDING=T2.BUILDING AND T1.ROOM=T2.ROOM AND T1.TERM=T2.TERM AND T1.DAYS=T2.DAYS AND T1.INSTRUCTORS=T2.INSTRUCTORS AND T1.TIMEE=T2.TIMEE AND (NOT T1.SUBJ=T2.SUBJ) AND (NOT T1.CID=T2.CID) \
+                ORDER BY T1.CID \
+                ")
+    x=cur.fetchall()
+    for i in x:
+        print(i[0],i[1],i[2])
+
+#    FROM meetings_tbl t1, meetings_tbl t2
+                # NATURAL JOIN\
+                # (SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T2 \
+                # GROUP BY TERM HAVING T1.DAYS = T2.DAYS) \
+                #  as A) \
 
 
-# def query_3e(cur):
-#     cur.execute("SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM\
-#                 (select CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T1 \
-#                 NATURAL JOIN\
-#                 (SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T2 \
-#                 WHERE (T1.DAYS = T2.DAYS ) \
-#                  as A \
-#                 ")
-#     x=cur.fetchall()
-#     print(x)
+
 #AND T1.TIMEE = T2.TIMEE AND T1.INSTRUCTOR=T2.INSTRUCTOR
 #                 select CID,TERM,INSTRUCTOR,DAYS,TIMES AS T2 FROM meetings_tbl \
 def query_3f(cur):
