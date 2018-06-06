@@ -49,9 +49,10 @@ def execute_queries(files,cur):
     #query_3b(cur)
     #query_3c(cur)
     #query_3d(cur)
+    query_3e(cur)
     #query_3f(cur)
     #query_3g(cur)
-    query_3h(cur)
+    #query_3h(cur)
 def query_3a(cur):
 
     term = []
@@ -218,7 +219,18 @@ def query_3d(cur):
     res = cur.fetchall()
     for el in res:
         print(el)
-
+def query_3e(cur):
+    cur.execute("SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM\
+                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T1 \
+                NATURAL JOIN\
+                (SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T2 \
+                WHERE T1.DAYS = T2.DAYS \
+                 as A \
+                ")
+    x=cur.fetchall()
+    print(x)
+#AND T1.TIMEE = T2.TIMEE AND T1.INSTRUCTOR=T2.INSTRUCTOR
+#                 select CID,TERM,INSTRUCTOR,DAYS,TIMES AS T2 FROM meetings_tbl \
 def query_3f(cur):
     print("Best Majors FOR ABC")
     cur.execute("SELECT MAJOR, GPA FROM\
@@ -290,7 +302,7 @@ def query_3g(cur):
     GROUP BY t.MAJOR ORDER BY COUNT(t.MAJOR)\
     ")
     res = cur.fetchall()
-    print("Top 5 Majors: ")
+    print("Top 5 Majors who transfered to ABC: ")
     top_5 = [res[-5:]]
 
 
@@ -303,8 +315,25 @@ def query_3g(cur):
     for i in range(1,6):
         print(top_5[0][-1 * i][0], float(top_5[0][-1 * i][1] / float(total_transfer)))
 
+def query_3h(cur):
+    cur.execute("SELECT t2.MAJOR, COUNT(t2.MAJOR) FROM seating_tbl t, seating_tbl t2\
+    WHERE t.SID = t2.SID AND t.MAJOR like 'ABC%' AND t2.MAJOR not like 'ABC%' AND t.TERM > t2.TERM\
+    GROUP BY t2.MAJOR ORDER BY COUNT(t2.MAJOR)\
+    ")
+    res = cur.fetchall()
 
 
+    print("Top 5 Majors who transfered FROM ABC: ")
+    top_5 = [res[-5:]]
+
+    cur.execute("SELECT t.SID FROM seating_tbl t, seating_tbl t2\
+    WHERE t.SID = t2.SID AND t.MAJOR <> t2.MAJOR AND t.TERM > t2.TERM AND t.MAJOR > t2.MAJOR\
+    ")
+    res = cur.fetchall()
+    total_transfer = len(res)
+
+    for i in range(1,6):
+        print(top_5[0][-1 * i][0], float(top_5[0][-1 * i][1] / float(total_transfer)))
 
 
 
