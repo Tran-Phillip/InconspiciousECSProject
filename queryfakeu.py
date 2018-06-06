@@ -45,12 +45,11 @@ def load():
 
 def execute_queries(files,cur):
 
-    query_3a(cur)
+    #query_3a(cur)
     #query_3b(cur)
     #query_3c(cur)
-
     #query_3d(cur)
-
+    query_3f(cur)
 def query_3a(cur):
 
     term = []
@@ -188,25 +187,25 @@ def query_3d(cur):
     cur.execute("SELECT CID,TERM, PR FROM \
                 (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
                     (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
-                    WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
+                    WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-','P')\
                      GROUP BY CID,TERM HAVING COUNT(SID) > 1\
                      ORDER BY CID\
                      ) AS PASSING_COUNT\
                      NATURAL JOIN\
                      (SELECT CID, TERM, COUNT(SID) AS T2 FROM seating_tbl\
-                     WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'NP','NS')\
+                     WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'P', 'NP','NS')\
                      GROUP BY CID,TERM HAVING COUNT(SID) > 1\
                      ORDER BY CID\
                  ) AS NON_PASSING_COUNT) AS FU WHERE PR = (SELECT MIN(PR) FROM \
                     (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
                         (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
-                        WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
+                        WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'P')\
                          GROUP BY CID,TERM HAVING COUNT(SID) > 1\
                          ORDER BY CID\
                          ) AS PASSING_COUNT\
                          NATURAL JOIN\
                          (SELECT CID, TERM, COUNT(SID) AS T2 FROM seating_tbl\
-                         WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'NP','NS')\
+                         WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')\
                          GROUP BY CID,TERM HAVING COUNT(SID) > 1\
                          ORDER BY CID\
                      ) AS NON_PASSING_COUNT) AS FU2\
@@ -218,6 +217,70 @@ def query_3d(cur):
     for el in res:
         print(el)
 
+def query_3f(cur):
+    print("Best Majors FOR ABC")
+    cur.execute("SELECT MAJOR, GPA FROM\
+                (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'ABC') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS tbl WHERE GPA = (SELECT MAX(GPA) FROM (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'ABC') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS TEST)\
+    ")
+    res = cur.fetchall()
+    for el in res:
+        print(el)
+
+    print("WORST Majors FOR ABC")
+    cur.execute("SELECT MAJOR, GPA FROM\
+                (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'ABC') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS tbl WHERE GPA = (SELECT MIN(GPA) FROM (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'ABC') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS TEST)\
+    ")
+    res = cur.fetchall()
+    for el in res:
+        print(el)
+
+    print("Best Majors FOR DEF")
+    cur.execute("SELECT MAJOR, GPA FROM\
+                (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'DEF') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS tbl WHERE GPA = (SELECT MAX(GPA) FROM (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'DEF') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS TEST)\
+    ")
+    res = cur.fetchall()
+    for el in res:
+        print(el)
+
+    print("WORST Majors FOR DEF")
+    cur.execute("SELECT MAJOR, GPA FROM\
+                (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'DEF') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS tbl WHERE GPA = (SELECT MIN(GPA) FROM (SELECT MAJOR, AVG(CONVERTED_GRADE) AS GPA FROM\
+                (select CID,TERM,SUBJ FROM course_tbl WHERE SUBJ = 'DEF') AS Course_tbl\
+                NATURAL JOIN\
+                (select CID,TERM,MAJOR,GRADE,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F','P','NP','NS')) As Seat_tbl\
+                GROUP BY MAJOR ORDER BY MAJOR) AS TEST)\
+    ")
+    res = cur.fetchall()
+    for el in res:
+        print(el)
 
 ### Main()
 if (len(sys.argv)==2):
