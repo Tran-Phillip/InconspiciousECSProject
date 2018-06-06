@@ -45,14 +45,14 @@ def load():
 
 def execute_queries(files,cur):
 
-    # query_3a(cur)
-    # query_3b(cur)
-    # query_3c(cur)
+    query_3a(cur)
+    query_3b(cur)
+    query_3c(cur)
     query_3d(cur)
-    # query_3e(cur)
-    # query_3f(cur)
-    # query_3g(cur)
-    # query_3h(cur)
+    query_3e(cur)
+    query_3f(cur)
+    query_3g(cur)
+    query_3h(cur)
 def query_3a(cur):
 
     term = []

@@ -1,0 +1,2 @@
+#!/bin/sh
+python loadfakeu.py $1
