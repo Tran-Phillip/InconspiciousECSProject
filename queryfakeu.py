@@ -45,12 +45,12 @@ def load():
 
 def execute_queries(files,cur):
 
-    #query_3a(cur)
+    query_3a(cur)
     #query_3b(cur)
     #query_3c(cur)
     #query_3d(cur)
     #query_3e(cur)
-    query_3f(cur)
+    #query_3f(cur)
     #query_3g(cur)
     #query_3h(cur)
 def query_3a(cur):
@@ -63,16 +63,17 @@ def query_3a(cur):
     # cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
     # total_count = cur.fetchall()
     # print(total_count) #count of unique student in each quarter
-    for i in range(0,11):
+    for i in range(1,21):
         print("UNITS: ",str(i))
-        cur.execute("SELECT TERM,CAST(C AS FLOAT) / CAST(C1 AS FLOAT) AS PR FROM \
+        cur.execute("SELECT  SUM(C)/ SUM(C1) FROM\
+                    (SELECT TERM,C,C1 FROM \
                     ((SELECT COUNT(t.SID) AS C,TERM FROM\
                         (select DISTINCT(SID),TERM FROM seating_tbl GROUP BY SID,TERM HAVING SUM(UNITS) =" +str(i) +") AS T\
                         GROUP BY TERM ORDER BY TERM) \
                     ) AS T1\
                     NATURAL JOIN\
                     (SELECT COUNT(DISTINCT SID) AS C1, TERM FROM seating_tbl GROUP BY TERM) AS T2\
-                    GROUP BY TERM, C, C1 ORDER BY TERM\
+                    GROUP BY TERM, C, C1 ORDER BY TERM) AS FUCK\
                     ")
 
 

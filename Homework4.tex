@@ -1,0 +1,135 @@
+\documentclass{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{lastpage}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\def\ojoin{\setbox0=\hbox{$\bowtie$}%
+  \rule[-.02ex]{.25em}{.4pt}\llap{\rule[\ht0]{.25em}{.4pt}}}
+\def\leftouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie}}
+\def\rightouterjoin{\mathbin{\bowtie\mkern-5.8mu\ojoin}}
+\def\fullouterjoin{\mathbin{\ojoin\mkern-5.8mu\bowtie\mkern-5.8mu\ojoin}}
+
+\fancypagestyle{plain}{%
+\fancyhf{}%
+\lhead{ECS165A SQ18}
+\rhead{\today}
+\cfoot{Homework 4\\ \thepage\ of \pageref{LastPage} }
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ECS165A SQ18}
+\rhead{\today}
+\cfoot{Homework 4\\ \thepage\ of \pageref{LastPage} }
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+\title{Homework 4}
+\author{Name: Phillip Tran\\SID: 999818578\\Partner Name: Kevin Conley\\Partner SID: 912039444}
+
+\maketitle
+
+Due 11:59PM June 5, 2018. {\bf READ ALL DIRECTIONS VERY CAREFULLY!}
+Submit your code, tex files along with a generated PDF. {\bf DO NOT SUBMIT DATA FILES!}
+For this homework you will be working in groups of two, a group of three will only be allowed with approval due to odd number of students.
+All programs will be evaluated on the CSIF. Upload your files as a tar gzip file (tgz). Only submit one homework per partner group. This specification is subject to change.
+
+You are designing a database for a university called FakeU. As a trial you have been provided grade data from courses for departments ABC and DEF.
+The grade data is from Summer of 1989 until Summer of 2012. The data provided is in CSV format, and is only as complete as could be made possible.
+There may be errors, omissions or redundant data in the files.
+FakeU like UC Davis is on a quarter system, however they have recently transitioned to a single summer quarter instead of two summer sessions.
+This has corrupted some of their summer data as all summer session classes have now been grouped into a single summer quarter term.
+Each course has a course ID (CID), a term it was offered (TERM), a subject (SUBJ), a course number (CRSE), a section (SEC), and number of units (UNITS).
+Within a course there listings of meetings, the instructor of the meeting (INSTRUCTOR(S)), meeting type (TYPE), day of meeting (DAYS), time of meeting (TIME), meeting building (BUILD), and meeting room (ROOM) are also listed. For each student that takes the course there is a student seat (SEAT), a student ID (SID), the student�s surname (SURNAME), the student�s preferred name (PREFNAME), the student�s (LEVEL), the number of units the student is receiving (UNITS), the student�s class standing (CLASS), the student�s major (MAJOR), the grade the student received in the course (GRADE), the student�s registration status (STATUS), and the student�s e-mail address (EMAIL).
+There may be courses that are cross listed between the two departments (e.g. ABC 123 may be cross listed as DEF 456).
+
+You {\bf MUST} put each problem on a separate page with 1a on the second page, for example 1a will be on page 2 and 1b will be on page 3 (this template is already setup for this).
+You {\bf MUST} put your name and student ID in the provided author section above. {\bf FAILURE TO DO SO MAY RESULT IN NO CREDIT!}
+The data will be provided on Canvas, and the CSV files will also be on the CSIF in /home/cjnitta/ecs165a/Grades. All submissions will be compared with MOSS, including against past submissions.
+
+Some useful tips:
+\begin{itemize}
+\item When loading the tuples into the database, insert them in batches. Inserting one tuple at a time may cause the program to take on the order of tens of minutes or hours instead of a few minutes.
+\item Test a subset of the data first.
+\end{itemize}
+
+\clearpage
+\section*{Part 1}
+You will be creating a database schema for your grade data.
+
+\begin{enumerate}[label=\alph*.]
+\item Provide an ER diagram for your database schema. Only include images generated from vector based programs. \\
+\input{prob1a.tex} \clearpage
+\item Provide a description of the tables in your schema, and their attributes. Make sure you describe how you will store the instructor, student, building, course, etc. information. \\
+\input{prob1b.tex} \clearpage
+\item What are the functional (and multivalue) dependencies that you expect to hold for each relation if any. If you don't expect any to hold, describe why not. \\
+\input{prob1c.tex} \clearpage
+\end{enumerate}
+
+\section*{Part 2}
+Write a program to load the grade data into a PostgreSQL database called FakeUData that follows your schema.
+You {\bf MUST} use the database called FakeUData, and should assume it will already be created for you without any tables or data in it.
+You may {\bf NOT} hardcode usernames in your code, use the USER environmental variable instead if user is needed.
+Your program can be written in C++ or python, you may {\bf NOT} use standalone SQL or text files that hold your queries.
+You may {\bf NOT} use shell calls to implement your program.
+All your queries need to be in your code.
+If you choose to make a C++ program, you must include a makefile and call the program loadfakeu.
+Include a readme file with descriptions of any issues/problems.
+If you choose to make a python program you must specify which version of python you used, and must provide a loadfakeu bash script to launch your python program.
+The loadfakeu program {\bf MUST} be able to take one optional argument (the directory where the CSV data files will be located).
+If the argument is omitted, the default is the current working directory.
+Scripts that require greater than 10 minutes to load all of the data may lose points.
+\clearpage
+
+\section*{Part 3}
+Write another program to query your database to calculate the following values, put the results in your write up, some may be best described with a chart instead of raw values.
+Name your program queryfakeu, it must output the data values for the following queries.
+The query program does not have to do everything in the SQL queries, but should limit the amount of data transfered.
+For example it is acceptable to have one SQL query for each unit number (1 - 20) for 3a, but it would be unacceptable to pull all student data on a per student basis and calculate the results.
+\begin{enumerate}[label=\alph*.]
+\item Calculate the percent of students that attempt 1 - 20 units of ABC or DEF per quarter for every unit increment (e.g. 1, 2, 3, ...). \\
+\input{prob3a.tex} \clearpage
+\item Find the easiest and hardest instructors based upon the grades of all the students they have taught in their courses. Provide their name and the average grade they assigned. (Ignore P/NP, S/NS grades) \\
+\input{prob3b.tex} \clearpage
+\item Calculate the average GPA for the students that take each number of units from part a. Assume that the grades have standard grade points (A+ = 4.0, A = 4.0, A- = 3.7, B+ = 3.3...). \\
+\input{prob3c.tex} \clearpage
+\item Find the courses with the highest and lowest pass rates. Assume that F, NP, and NS are not passing grades. \\
+\input{prob3d.tex} \clearpage
+\item Find the list of courses that must be cross listed as they have the same meeting times during the normal quarters. Only list the pair once, put the course name/number string in alphabetically order of the pairs. \\
+\input{prob3e.tex} \clearpage
+\item Find the major that performs the best/worst on average in ABC courses. Repeat the analysis for DEF courses as well. \\
+\input{prob3f.tex} \clearpage
+\item Find the top 5 majors that students transfer from into ABC. What is the percent of students from each of those majors compared to overall transfers? \\
+\input{prob3g.tex} \clearpage
+\item Find the top 5 majors that students transfer to from ABC. What is the percent of students to each of those majors compared to overall transfers out? \\
+\input{prob3h.tex} \clearpage
+\end{enumerate}
+
+\section*{Part 4}
+Extra credit: The Efficient XML Interchange (EXI) is a format for the compact representation of XML information.
+The CSV files provided for this assignment have been consolidated into a single EXI file (HW4Grades.exi) that is available in the resources section of Canvas.
+Implement a separate program that it can load the database from the EXI file.
+You may {\bf NOT} use shell calls, or creation of external temporary files for this part.
+Name your program or bash script loadfakeuexi.
+\clearpage
+
+\section*{Part 5}
+Extra credit: Additional queries/query program.
+\begin{enumerate}[label=\alph*.]
+\item Find the courses that appear to be prerequisites for ABC 203, ABC 210, and ABC 222. For this problem list the courses that the X\% of students have taken for every 5\% increment from 50\% - 100\% prior to taking the course. (Add this output to your query program.)\\
+\input{prob5a.tex} \clearpage
+\item Write a program that will find an open room for course expansion. The program must prompt for term, CID, and number students to add. The room(s) returned should be ordered from best to worst fit with up to 5 results. Assume that each room capacity is the maximum number of students listed for any particular meeting in the data files (don't forget that lectures may be split across multiple CIDs). Name this program findroomfakeu.
+\input{prob5b.tex} \clearpage
+\end{enumerate}
+
+
+
+\end{document}

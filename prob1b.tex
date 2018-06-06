@@ -1,0 +1,27 @@
+% Problem 1b goes below
+We will be storing the course infomation into it's own table called course_tbl \\
+
+We will store the CID,TERM,CRSE,SEC as integers with the CID as non-null\\
+
+The Subj and Units will be stored as VARCHARs in order to accompny the fact that units may not be integers\\
+
+
+For the meetings we will store it in a table called meetings_tbl \\
+
+it will also take the CID and TERM as integers, but takes the INSTRUCTORS \\
+
+TYPE, DAYS,TIME, BUILDING AND ROOM as VARCHARS as these tend to be strings and the ROOM isnt always an integer \\
+
+Finally we will store the seating information into a table called seating_tbl \\
+
+The seating tbl will take CID and TERM AS INTEGERS with SEAT, SID, SURNAME, and PREFNAMES as VARCHARS of size(20/30)\\
+
+The level will always remain constant size of 4 so we made it CHAR(4) \\
+
+The units will be taken in as a REAL number because they can be 3.5 and such \\
+
+Finally, the CLASS, MAJOR, GRADE, STATUS, and EMAIL will be stored in VARCHARS\\
+
+We also include an extra column called "CONVERTED GRADE" which stores the real number \\
+
+equivalent of the GRADE obatined by the student.\\

@@ -1,0 +1,40 @@
+% Problem 1c goes below
+\{ CID , TERM \} \rightarrow \{ SUBJ, CRSE, SEC,UNITS \} \\
+
+
+I don't expect anything else to hold for students because CID and CRSE can be reused  \\
+
+multiple SUBJ and SEC are super board so they encompass a large quantity of courses thus \\
+
+there is a high chance they will be repeated somewhere
+
+\{BUILD, TERM, CID, ROOM, DAY, TIME} \rightarrow \{INSTRUCTORS, TYPE\} \\
+
+I only expect this to hold in meetings because there can only be one \\
+
+one event that happens in the same building at the same day on the same time during \\
+
+the same school year. Time and days can happen multiple times per ... forever \\
+
+Type is definately not unique, as with instructors, and many meetings can happen in the same building \\
+
+for students I expect
+
+\{CID,TERM,SID,EMAIL\} \rightarrow \{Surname,Prefname,Class,Status,Seat,Email,Grade,Units,Major,Level\}
+
+I dont expect anything else to hold because Seats can change depending on whether a student took multiple classes \\
+
+Grade definately varies per class,  as does units. Level varies as a student spends more time in school \\
+
+People can have the same pref name and surname, and status changes depending on time as well, the Email and SID \\
+
+alone could be a key however, it doesnt determine alone because students can take multiple \\
+
+classes and thus have different values assosiated to the same SID and Email \\
+
+As for MVD's
+\{ CID , TERM \} \doublerightarrow \{ SUBJ, CRSE, SEC,UNITS \} \\
+\{BUILD, TERM, CID, ROOM, DAY, TIME} \rightarrow \{INSTRUCTORS, TYPE\} \\
+\{CID,TERM,SID,EMAIL\} \rightarrow \{Surname,Prefname,Class,Status,Seat,Email,Grade,Units,Major,Level\} \\
+
+all follow due to promotion , due to the fact these dependencies are keys, the compliment rule would not apply for MVD's \\
