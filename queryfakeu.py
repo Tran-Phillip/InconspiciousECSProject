@@ -49,7 +49,9 @@ def execute_queries(files,cur):
     #query_3b(cur)
     #query_3c(cur)
     #query_3d(cur)
-    query_3f(cur)
+    #query_3f(cur)
+    #query_3g(cur)
+    query_3h(cur)
 def query_3a(cur):
 
     term = []
@@ -281,6 +283,30 @@ def query_3f(cur):
     res = cur.fetchall()
     for el in res:
         print(el)
+
+def query_3g(cur):
+    cur.execute("SELECT t.MAJOR, COUNT(t.MAJOR) FROM seating_tbl t, seating_tbl t2\
+    WHERE t.SID = t2.SID AND t.MAJOR not like 'ABC%' AND t2.MAJOR like 'ABC%' AND t.TERM > t2.TERM\
+    GROUP BY t.MAJOR ORDER BY COUNT(t.MAJOR)\
+    ")
+    res = cur.fetchall()
+    print("Top 5 Majors: ")
+    top_5 = [res[-5:]]
+
+
+    cur.execute("SELECT t.SID FROM seating_tbl t, seating_tbl t2\
+    WHERE t.SID = t2.SID AND t.MAJOR <> t2.MAJOR AND t.TERM > t2.TERM AND t.MAJOR > t2.MAJOR\
+    ")
+    res = cur.fetchall()
+    total_transfer = len(res)
+
+    for i in range(1,6):
+        print(top_5[0][-1 * i][0], float(top_5[0][-1 * i][1] / float(total_transfer)))
+
+
+
+
+
 
 ### Main()
 if (len(sys.argv)==2):
