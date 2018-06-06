@@ -45,14 +45,14 @@ def load():
 
 def execute_queries(files,cur):
 
-    query_3a(cur)
-    #query_3b(cur)
-    #query_3c(cur)
-    #query_3d(cur)
-    #query_3e(cur)
-    #query_3f(cur)
-    #query_3g(cur)
-    #query_3h(cur)
+    # query_3a(cur)
+    # query_3b(cur)
+    # query_3c(cur)
+    query_3d(cur)
+    # query_3e(cur)
+    # query_3f(cur)
+    # query_3g(cur)
+    # query_3h(cur)
 def query_3a(cur):
 
     term = []
@@ -151,7 +151,7 @@ def query_3c(cur):
 def query_3d(cur):
     print("Highest Pass Rates!")
 
-    cur.execute("SELECT CID,TERM, PR FROM \
+    cur.execute("SELECT CID FROM \
                 (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
                     (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
                     WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-')\
@@ -179,10 +179,10 @@ def query_3d(cur):
 
     res = cur.fetchall()
     for el in res:
-        print(el)
+        print(el[0])
 
     print("Lowest Pass Rates!")
-    cur.execute("SELECT CID,TERM, PR FROM \
+    cur.execute("SELECT CID FROM \
                 (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
                     (SELECT CID,TERM, COUNT(SID) AS T FROM seating_tbl\
                     WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-','P')\
@@ -213,18 +213,18 @@ def query_3d(cur):
 
     res = cur.fetchall()
     for el in res:
-        print(el)
+        print(el[0])
 def query_3e(cur):
-    cur.execute("SELECT DISTINCT T1.CID,T2.CID,T1.TERM FROM\
-                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE,SUBJ,BUILDING,ROOM FROM meetings_tbl NATURAL JOIN course_tbl) AS T1 \
+    cur.execute("SELECT DISTINCT T1.CID,T1.CRSE FROM\
+                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE,SUBJ,BUILDING,ROOM,CRSE FROM meetings_tbl NATURAL JOIN course_tbl) AS T1 \
                 CROSS JOIN  \
-                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE,SUBJ,BUILDING,ROOM FROM meetings_tbl NATURAL JOIN course_tbl) AS T2 \
+                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE,SUBJ,BUILDING,ROOM,CRSE FROM meetings_tbl NATURAL JOIN course_tbl) AS T2 \
                 WHERE (NOT CAST (T1.TERM AS VARCHAR) LIKE '____06') AND (NOT T1.DAYS='NULL') AND (NOT T1.INSTRUCTORS='NULL') AND (NOT T1.SUBJ='NULL') AND T1.CID>T2.CID AND T1.BUILDING=T2.BUILDING AND T1.ROOM=T2.ROOM AND T1.TERM=T2.TERM AND T1.DAYS=T2.DAYS AND T1.INSTRUCTORS=T2.INSTRUCTORS AND T1.TIMEE=T2.TIMEE AND (NOT T1.SUBJ=T2.SUBJ) AND (NOT T1.CID=T2.CID) \
                 ORDER BY T1.CID \
                 ")
     x=cur.fetchall()
     for i in x:
-        print(i[0],i[1],i[2])
+        print(i[0],i[1])
 
 #    FROM meetings_tbl t1, meetings_tbl t2
                 # NATURAL JOIN\
