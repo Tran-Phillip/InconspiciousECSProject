@@ -10,6 +10,33 @@ import csv
 #   #FIXME: What is our primary key here?
 ########################################################################
 
+
+def convert_grades(grade):
+    if(grade == 'A'):
+        return 4.0
+    elif(grade == 'A-'):
+        return 3.7
+    elif(grade == 'B+'):
+        return 3.3
+    elif(grade == 'B'):
+        return 3.0
+    elif(grade == 'B-'):
+        return 2.7
+    elif(grade == 'C+'):
+        return 2.3
+    elif(grade == 'C'):
+        return 2.0
+    elif(grade == 'C-'):
+        return 1.7
+    elif(grade == 'D+'):
+        return 1.3
+    elif(grade == 'D'):
+        return 1.0
+    elif(grade == 'D-'):
+        return .7
+    else:
+        return 0
+
 def clean_up(tuple):
     '''removes extra '' at the begining and the end'''
     tuple.pop(0)
@@ -55,6 +82,7 @@ def create_tables(cur):
                 GRADE VARCHAR(10),\
                 STATUS VARCHAR(50),\
                 EMAIL VARCHAR(50),\
+                CONVERTED_GRADE REAL,\
                 PRIMARY KEY(CID, TERM, SID)\
     );")
 
@@ -92,16 +120,16 @@ def insert_into_table(course_tuple, meeting_tuple, seating_tuple,cur): #FIXME: i
     for tuple in meeting_tuple:
         cur.execute("INSERT INTO meetings_tbl(CID, TERM, INSTRUCTORS,TYPE,DAYS,TIMEE,BUILDING,ROOM)"\
                      "VALUES (" + CID + "," +  TERM +',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' +  tuple[2] + \
-                     '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5]  +"\');")
+                     '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5] +"\');")
 
     if(not seating_tuple):
         return
 
     for tuple in seating_tuple:
-        cur.execute("INSERT INTO seating_tbl(CID, TERM,SEAT,SID,SURNAME,PREFNAME,LEVEL,UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL)"\
+        cur.execute("INSERT INTO seating_tbl(CID, TERM,SEAT,SID,SURNAME,PREFNAME,LEVEL,UNITS,CLASS,MAJOR,GRADE,STATUS,EMAIL,CONVERTED_GRADE)"\
                     "VALUES (" + CID + "," + TERM + ',\'' + tuple[0] + '\',\'' + tuple[1] + '\',\'' +  tuple[2] + \
                     '\',\'' + tuple[3] + '\',\''  + tuple[4] + "\'" + ',\'' + tuple[5] + '\',\'' \
-                     + tuple[6] + '\',\''  + tuple[7] + "\'" + ',\'' + tuple[8] + '\',\'' + tuple[9] + '\',\''  + tuple[10]\
+                     + tuple[6] + '\',\''  + tuple[7] + "\'" + ',\'' + tuple[8] + '\',\'' + tuple[9] + '\',\''  + tuple[10] + "\',\'" + str(tuple[11])\
                      + "\') ;")
 #ON DUPLICATE DO NOTHING
 def make_equal(tuple, num_attributes):
@@ -191,6 +219,7 @@ def parse_seating(csvreader):
             tuple[10] = tuple[10].replace('\'', '_')
         if(tuple[5]==""):
             tuple[5]='0'
+        tuple.insert(len(tuple),convert_grades(tuple[8]))
         seating_tuple.append(tuple)
         try:
             tuple = next(csvreader)
