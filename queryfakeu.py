@@ -49,8 +49,8 @@ def execute_queries(files,cur):
     #query_3b(cur)
     #query_3c(cur)
     #query_3d(cur)
-    query_3e(cur)
-    #query_3f(cur)
+    #query_3e(cur)
+    query_3f(cur)
     #query_3g(cur)
     #query_3h(cur)
 def query_3a(cur):
@@ -63,7 +63,7 @@ def query_3a(cur):
     # cur.execute("SELECT COUNT(DISTINCT SID) FROM seating_tbl GROUP BY TERM")
     # total_count = cur.fetchall()
     # print(total_count) #count of unique student in each quarter
-    for i in range(0,21):
+    for i in range(0,11):
         print("UNITS: ",str(i))
         cur.execute("SELECT TERM,CAST(C AS FLOAT) / CAST(C1 AS FLOAT) AS PR FROM \
                     ((SELECT COUNT(t.SID) AS C,TERM FROM\
@@ -133,28 +133,22 @@ def query_3b(cur):
 
 def query_3c(cur):
 
-    for units in range(1,21): #range was off and this should be broken since 3a was done wrong but I don't exactly see where it's doing anything with the terms...
-        total_GPA = 0
-        cur.execute("SELECT SID, PREFNAME, GRADE FROM seating_tbl\
-                     WHERE UNITS ="+ str(units)+" AND GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')")
+    for i in range(1,21):
+        print("UNITS: ", i)
+        cur.execute(" SELECT AVG(C) FROM\
+                      (SELECT AVG(CONVERTED_GRADE) AS C FROM\
+                        (select DISTINCT(SID),TERM,CONVERTED_GRADE FROM seating_tbl WHERE GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'P', 'NP','NS')\
+                         GROUP BY SID,TERM,CONVERTED_GRADE HAVING SUM(UNITS) =" +str(i) +") AS T\
+                        GROUP BY TERM ORDER BY TERM) AS TEST\
+                    ")
+
 
         res = cur.fetchall()
         for x in res:
-            total_GPA += convert_grades(x[2])
-        cur.execute("SELECT COUNT(GRADE) FROM seating_tbl\
-                                                WHERE UNITS ="+str(units)+" AND GRADE IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F')")
-        count = cur.fetchall()
-
-        if(count[0][0] == 0):
-            print("Nobody taking " + str(units) +" units for a grade!")
-            continue
-
-        avg_gpa = total_GPA / count[0][0]
-        print("The average GPA for " + str(units) + " units is: ", str(round(avg_gpa,2)))
+            print(x)
 
 def query_3d(cur):
     print("Highest Pass Rates!")
-
 
     cur.execute("SELECT CID,TERM, PR FROM \
                 (SELECT CID, TERM, (CAST(T AS FLOAT) / CAST(T2 AS FLOAT)) PR FROM\
@@ -219,16 +213,18 @@ def query_3d(cur):
     res = cur.fetchall()
     for el in res:
         print(el)
-def query_3e(cur):
-    cur.execute("SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM\
-                (select CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T1 \
-                NATURAL JOIN\
-                (SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T2 \
-                WHERE T1.DAYS = T2.DAYS \
-                 as A \
-                ")
-    x=cur.fetchall()
-    print(x)
+
+
+# def query_3e(cur):
+#     cur.execute("SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM\
+#                 (select CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T1 \
+#                 NATURAL JOIN\
+#                 (SELECT CID,TERM,INSTRUCTORS,DAYS,TIMEE FROM meetings_tbl) AS T2 \
+#                 WHERE (T1.DAYS = T2.DAYS ) \
+#                  as A \
+#                 ")
+#     x=cur.fetchall()
+#     print(x)
 #AND T1.TIMEE = T2.TIMEE AND T1.INSTRUCTOR=T2.INSTRUCTOR
 #                 select CID,TERM,INSTRUCTOR,DAYS,TIMES AS T2 FROM meetings_tbl \
 def query_3f(cur):
